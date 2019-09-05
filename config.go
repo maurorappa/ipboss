@@ -6,14 +6,17 @@ import (
 )
 
 type config struct {
-	Verbose      bool    `toml:"verbose"`
-	Poll_interval  int   `toml:"poll_interval"`
-	Rules  map[string]rule
+	Verbose       bool   `toml:"verbose"`
+	Interface     string `toml:"interface"`
+	Listener      string `toml:"listener"`
+	Poll_interval int    `toml:"poll_interval"`
+	Timeout       int    `toml:"timeout"`
+	Rules         map[string]rule
 }
 
 type rule struct {
-	IP string
-	Port int
+	IP      string
+	Port    int
 	Process string
 }
 
