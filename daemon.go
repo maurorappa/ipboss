@@ -38,6 +38,7 @@ func main() {
 			log.Printf("Service: %s monitored \n", servicename)
 		}
 	}
+	check_ip(conf.Interface,"169.254.169.254/32 lo")
 	log.Printf("checking...")
 	Mticker := time.NewTicker(time.Duration(conf.Poll_interval) * time.Second)
 	defer Mticker.Stop()
@@ -49,10 +50,13 @@ func main() {
 			if service.Port != 0 {
 				log.Printf("is port %d open? %v\n", service.Port, check_port(conf.Listener+":"+string(service.Port), conf.Timeout))
 				//check port
-				// open, add IP
-				add_ip(conf.Interface, service.IP)
-				// closed, remove IP
-				rem_ip(conf.Interface, service.IP)
+				if  check_port(conf.Listener+":"+string(service.Port), conf.Timeout) {
+					// open, add IP
+					add_ip(conf.Interface, service.IP)
+				} else {
+					// closed, remove IP
+					rem_ip(conf.Interface, service.IP)
+				}
 			}
 			if service.Process != "" {
 				log.Printf("is %s running?\n", service.Process)

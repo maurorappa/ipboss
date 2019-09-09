@@ -6,7 +6,7 @@ import (
 )
 
 func check_port(host string, timeout int) (open bool) {
-	_, err := net.DialTimeout("tcp", host, time.Duration(timeout)*time.MilliSecond)
+	_, err := net.DialTimeout("tcp", host, time.Duration(timeout)*time.Millisecond)
 
 	if err, ok := err.(*net.OpError); ok && err.Timeout() {
 		open = false
