@@ -6,6 +6,7 @@ import (
 	"log"
 	//"net"
 	//"os"
+	"strconv"
 	"time"
 )
 
@@ -47,23 +48,27 @@ func main() {
 				log.Printf("Checking %s", servicename)
 			}
 			if service.Port != 0 {
-				log.Printf("is port %d open? %v\n", service.Port, check_port(conf.Listener+":"+string(service.Port), conf.Timeout))
+				if conf.Verbose {
+					log.Printf("is port %d open?\n", service.Port)
+				}
 				//check port
-				if check_port(conf.Listener+":"+string(service.Port), conf.Timeout) {
+				if check_port(conf.Listener+":"+strconv.Itoa(service.Port), conf.Timeout) {
 					// open, add IP
 					if ! check_ip(conf.Interface, service.IP+"/32"+" "+conf.Interface) {
 						add_ip(conf.Interface, service.IP)
 					}
 				} else {
 					// closed, remove IP
-					rem_ip(conf.Interface, service.IP)
+					if check_ip(conf.Interface, service.IP+"/32"+" "+conf.Interface) {
+						rem_ip(conf.Interface, service.IP)
+					}
 				}
 			}
+			// more check will follow
 			if service.Process != "" {
 				log.Printf("is %s running?\n", service.Process)
 			}
 		}
 	}
 	log.Println("Do something...")
-	//go siren_mgr()
 }

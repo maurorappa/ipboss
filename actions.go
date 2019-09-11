@@ -12,7 +12,9 @@ func check_ip(netinf string, ip string) (ok bool) {
 	ok = false
 	for _,addr := range addrs {
 		if addr.String() == ip {
-			log.Printf("IP Found")
+			if conf.Verbose {
+				log.Printf("IP Found")
+			}
 			ok = true
 			break
 		}
@@ -40,7 +42,7 @@ func rem_ip(network_interface string, ip string) (ok bool) {
 	addr, _ := netlink.ParseAddr(ip + "/32")
 	err := netlink.AddrDel(netif, addr)
 	if err != nil {
-		//log.Printf("ERROR removing %s from %s",ip,network_interface)
+		log.Printf("ERROR removing %s from %s",ip,network_interface)
 		return ok
 	}
 	log.Printf("Removing %s from %s",ip,network_interface)
