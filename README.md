@@ -6,6 +6,7 @@ Linux daemon which manages IP based on local policies (process running, port ope
 
 ### Dockerize it
 `docker build .`
+the default config is harmless and useful for testing, it adds IP to localhost
 
 ### Docs
 see sample config file and/or read the code ;)
