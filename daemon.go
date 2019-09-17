@@ -54,12 +54,12 @@ func main() {
 				//check port
 				if check_port(conf.Listener+":"+strconv.Itoa(service.Port), conf.Timeout) {
 					// open, add IP
-					if ! check_ip(conf.Interface, service.IP+"/32"+" "+conf.Interface) {
+					if ! check_ip(conf.Interface, service.IP+" "+conf.Interface) {
 						add_ip(conf.Interface, service.IP)
 					}
 				} else {
 					// closed, remove IP
-					if check_ip(conf.Interface, service.IP+"/32"+" "+conf.Interface) {
+					if check_ip(conf.Interface, service.IP+" "+conf.Interface) {
 						rem_ip(conf.Interface, service.IP)
 					}
 				}

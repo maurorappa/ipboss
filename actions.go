@@ -22,30 +22,30 @@ func check_ip(netinf string, ip string) (ok bool) {
 	return ok
 }
 
-func add_ip(network_interface string, ip string) (ok bool) {
+func add_ip(network_interface string, ipaddr string) (ok bool) {
 	ok = false
 	netif, _ := netlink.LinkByName(network_interface)
-	addr, _ := netlink.ParseAddr(ip + "/32")
+	addr, _ := netlink.ParseAddr(ipaddr)
 	err := netlink.AddrAdd(netif, addr)
 	if err != nil {
-		log.Printf("ERROR adding %s to %s",ip,network_interface)
+		log.Printf("ERROR adding %s to %s",ipaddr,network_interface)
 		return ok
 	}
-	log.Printf("Adding %s to %s",ip,network_interface)
+	log.Printf("Adding %s to %s",ipaddr,network_interface)
 	ok = true
 	return ok
 }
 
-func rem_ip(network_interface string, ip string) (ok bool) {
+func rem_ip(network_interface string, ipaddr string) (ok bool) {
 	ok = false
 	netif, _ := netlink.LinkByName(network_interface)
-	addr, _ := netlink.ParseAddr(ip + "/32")
+	addr, _ := netlink.ParseAddr(ipaddr)
 	err := netlink.AddrDel(netif, addr)
 	if err != nil {
-		log.Printf("ERROR removing %s from %s",ip,network_interface)
+		log.Printf("ERROR removing %s from %s",ipaddr,network_interface)
 		return ok
 	}
-	log.Printf("Removing %s from %s",ip,network_interface)
+	log.Printf("Removing %s from %s",ipaddr,network_interface)
 	ok = true
 	return ok
 }
