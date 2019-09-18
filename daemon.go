@@ -40,6 +40,7 @@ func main() {
 		}
 	}
 	log.Printf("checking...")
+	get_primary_ip(conf.Interface)
 	Mticker := time.NewTicker(time.Duration(conf.Poll_interval) * time.Second)
 	defer Mticker.Stop()
 	for range Mticker.C {

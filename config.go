@@ -7,6 +7,7 @@ import (
 
 type config struct {
 	Verbose       bool   `toml:"verbose"`
+	Aws	      bool   `toml:"aws_instance"`
 	Interface     string `toml:"interface"`
 	Listener      string `toml:"listener"`
 	Poll_interval int    `toml:"poll_interval"`
