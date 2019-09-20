@@ -38,8 +38,8 @@ func main() {
 	myip := GetPrimaryIp(conf.Interface)
 	log.Printf("Primary IP is: %s\n",myip)
 	if conf.Aws {
-		if ( os.Getenv("AWS_ACCESS_KEY_ID") == "" || os.Getenv("AWS_SECRET_ACCESS_KEY") == "" || os.Getenv("AWS_REGION") == "" ) {
-			log.Printf("You need to specify AWS credentials and region!")
+		if os.Getenv("AWS_REGION") == ""  {
+			log.Printf("Make sure you have valid AWS credentials and region!")
 			os.Exit(17)
 		}
 		eni = FindMyEni(myip)

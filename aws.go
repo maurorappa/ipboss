@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -56,14 +57,14 @@ func FindMyEni(myip string) (eni string) {
 		}
 	}
 	eni = detail["Eni"]
-	fmt.Printf("Eni: %s\n", eni)
+	log.Printf("Eni: %s\n", eni)
 	return eni
 }
 
 func AddIpToEni(eni string, ip string) {
 	reassign := true
 	theip := strings.Split(ip, "/")
-	fmt.Printf("Asking AWS to assign to this instance %s\n", theip[0])
+	log.Printf("Asking AWS to assign to this instance %s\n", theip[0])
 	svc := ec2.New(session.New())
 	inputs := &ec2.AssignPrivateIpAddressesInput{
 		NetworkInterfaceId: aws.String(eni),
@@ -86,12 +87,12 @@ func AddIpToEni(eni string, ip string) {
 		}
 		return
 	}
-	fmt.Println("Added")
+	log.Println("Added")
 }
 
 func RemIpFromEni(eni string, ip string) {
 	theip := strings.Split(ip, "/")
-	fmt.Printf("Asking AWS to remove to this instance %s\n", theip[0])
+	log.Printf("Asking AWS to remove to this instance %s\n", theip[0])
 	svc := ec2.New(session.New())
 	inputs := &ec2.UnassignPrivateIpAddressesInput{
 		NetworkInterfaceId: aws.String(eni),
@@ -113,5 +114,5 @@ func RemIpFromEni(eni string, ip string) {
 		}
 		return
 	}
-	fmt.Println("Removed")
+	log.Println("Removed")
 }
