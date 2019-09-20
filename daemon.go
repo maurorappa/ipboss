@@ -2,21 +2,17 @@ package main
 
 import (
 	"flag"
-	//"fmt"
 	"log"
 	//"net"
-	//"os"
+	"os"
 	"strconv"
 	"time"
 )
 
 var (
 	verbose bool
-	//cpu_load		 int
-	//iterations		 int64
-	//git_info		 string
-	//start_time               time.Time
-	conf *config
+	eni     string
+	conf    *config
 )
 
 func init() {
@@ -39,8 +35,15 @@ func main() {
 			log.Printf("Service: %s monitored \n", servicename)
 		}
 	}
-	log.Printf("checking...")
-	get_primary_ip(conf.Interface)
+	myip := GetPrimaryIp(conf.Interface)
+	log.Printf("Primary IP is: %s\n",myip)
+	if conf.Aws {
+		if ( os.Getenv("AWS_ACCESS_KEY_ID") == "" || os.Getenv("AWS_SECRET_ACCESS_KEY") == "" || os.Getenv("AWS_REGION") == "" ) {
+			log.Printf("You need to specify AWS credentials and region!")
+			os.Exit(17)
+		}
+		eni = FindMyEni(myip)
+	}
 	Mticker := time.NewTicker(time.Duration(conf.Poll_interval) * time.Second)
 	defer Mticker.Stop()
 	for range Mticker.C {
@@ -52,24 +55,30 @@ func main() {
 				if conf.Verbose {
 					log.Printf("is port %d open?\n", service.Port)
 				}
-				//check port
-				if check_port(conf.Listener+":"+strconv.Itoa(service.Port), conf.Timeout) {
+				//check if the port is open on thge primary IP
+				if CheckPort(myip+":"+strconv.Itoa(service.Port), conf.Timeout) {
 					// open, add IP
-					if ! check_ip(conf.Interface, service.IP+" "+conf.Interface) {
-						add_ip(conf.Interface, service.IP)
+					if !CheckIp(conf.Interface, service.IP+" "+conf.Interface) {
+						AddIp(conf.Interface, service.IP)
+						if conf.Aws {
+							AddIpToEni(eni, service.IP)
+						}
 					}
 				} else {
 					// closed, remove IP
-					if check_ip(conf.Interface, service.IP+" "+conf.Interface) {
-						rem_ip(conf.Interface, service.IP)
+					if CheckIp(conf.Interface, service.IP+" "+conf.Interface) {
+						RemIp(conf.Interface, service.IP)
+						// remove from AWS, this check should be independent from the above local IP check
+						if conf.Aws {
+							RemIpFromEni(eni, service.IP)
+						}
 					}
 				}
 			}
-			// more check will follow
+			// more checks will follow
 			if service.Process != "" {
 				log.Printf("is %s running?\n", service.Process)
 			}
 		}
 	}
-	log.Println("Do something...")
 }
