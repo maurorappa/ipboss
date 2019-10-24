@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/vishvananda/netlink"
 	"log"
+	"net"
 	"strings"
 )
 
@@ -53,5 +54,29 @@ func CheckIp(netinf string, requestedIp string) (ok bool) {
 			break
 		}
 	}
+	return ok
+}
+
+func addRoute(dev string, pubip string, gw string) (ok bool) {
+	ok = false
+	netif, err := netlink.LinkByName(dev)
+	if err != nil {
+		log.Printf("\nERROR getting interface %s\n", dev)
+		return
+	}
+	PrivIp := net.ParseIP(gw)
+	PubIp := net.ParseIP(pubip)
+	err = netlink.RouteAdd(&netlink.Route{
+		LinkIndex: netif.Attrs().Index,
+		Scope:     netlink.SCOPE_LINK,
+		//Dst:       &net.IPNet{IP: net.IPv4(PubIp[0],PubIp[1],PubIp[2],PubIp[3]), Mask: net.IPv4Mask(255, 255, 255, 255)},
+		Dst: &net.IPNet{IP: PubIp, Mask: net.IPv4Mask(255, 255, 255, 255)},
+		//Gw:        net.IPv4(PrivIp[0],PrivIp[1],PrivIp[2],PrivIp[3]),
+		Gw: PrivIp,
+	})
+	if err != nil {
+		log.Printf("\nERROR settin route: %s\n", err)
+	}
+	ok = true
 	return ok
 }

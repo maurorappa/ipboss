@@ -14,19 +14,19 @@ func findIp(service string) (privateip string) {
 
 	sess := session.New()
 	var config *aws.Config
-	if ! verboseApi {
+	if !verboseApi {
 		config = &aws.Config{
-			Region: aws.String("eu-west-1"),
+			Region: aws.String(conf.AwsRegion),
 		}
 	} else {
 		config = &aws.Config{
-			Region:   aws.String("eu-west-1"),
+			Region:   aws.String(conf.AwsRegion),
 			LogLevel: aws.LogLevel(aws.LogDebugWithHTTPBody),
 		}
 	}
 	svc := ecs.New(sess, config)
 	task := &ecs.ListTasksInput{
-		Cluster: aws.String(ecsCluster),
+		Cluster: aws.String(conf.EcsCluster),
 		Family:  aws.String(service),
 	}
 	result, err := svc.ListTasks(task)
@@ -61,7 +61,7 @@ func findIp(service string) (privateip string) {
 		fmt.Printf("Task: %s\n", arn)
 	}
 	taskdetail := &ecs.DescribeTasksInput{
-		Cluster: aws.String(ecsCluster),
+		Cluster: aws.String(conf.EcsCluster),
 		Tasks: []*string{
 			aws.String(arn),
 		},
@@ -100,7 +100,7 @@ func findIp(service string) (privateip string) {
 		fmt.Printf("Container: %s\n", container)
 	}
 	container_detail := &ecs.DescribeContainerInstancesInput{
-		Cluster: aws.String(ecsCluster),
+		Cluster: aws.String(conf.EcsCluster),
 		ContainerInstances: []*string{
 			aws.String(container),
 		},

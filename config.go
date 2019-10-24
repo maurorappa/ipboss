@@ -6,18 +6,13 @@ import (
 )
 
 type config struct {
-	Verbose       bool   `toml:"verbose"`
-	Aws           bool   `toml:"aws_instance"`
-	Interface     string `toml:"interface"`
-	Poll_interval int    `toml:"poll_interval"`
-	Timeout       int    `toml:"timeout"`
-	Rules         map[string]rule
-}
-
-type rule struct {
-	IP      string
-	Port    int
-	Process string
+	Verbose      bool   `toml:"verbose"`
+	EniId        string `toml:"eniId"`
+	Interface    string `toml:"interface"`
+	EniPrivateIp string `toml:"eniPrivateIp"`
+	PublicIp     string `toml:"PublicIp"`
+	AwsRegion    string `toml:"AwsRegion"`
+	EcsCluster   string `toml:"EcsCluster"`
 }
 
 func loadConfig(path string) *config {
