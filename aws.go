@@ -3,12 +3,42 @@ package main
 import (
 	"fmt"
 	"log"
+	"net"
 	"strings"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
+
+var privateIPBlocks []*net.IPNet
+
+func init() {
+    for _, cidr := range []string{
+        "127.0.0.0/8",    // IPv4 loopback
+        "10.0.0.0/8",     // RFC1918
+        "172.16.0.0/12",  // RFC1918
+        "192.168.0.0/16", // RFC1918
+        "::1/128",        // IPv6 loopback
+        "fe80::/10",      // IPv6 link-local
+        "fc00::/7",       // IPv6 unique local addr
+    } {
+        _, block, err := net.ParseCIDR(cidr)
+        if err != nil {
+            panic(fmt.Errorf("parse error on %q: %v", cidr, err))
+        }
+        privateIPBlocks = append(privateIPBlocks, block)
+    }
+}
+
+func isPrivateIP(ip net.IP) bool {
+    for _, block := range privateIPBlocks {
+        if block.Contains(ip) {
+            return true
+        }
+    }
+    return false
+}
 
 func FindMyEni(myip string) (eni string) {
 	eni = ""
@@ -64,13 +94,19 @@ func FindMyEni(myip string) (eni string) {
 func AddIpToEni(eni string, ip string) {
 	reassign := true
 	theip := strings.Split(ip, "/")
-	log.Printf("Asking AWS to assign to this instance %s\n", theip[0])
-	svc := ec2.New(session.New())
+	realip := theip[0]
+	log.Printf("Asking AWS to assign to this instance %s\n", realip)
+	sess := session.New()
+	config := &aws.Config{
+		Region:      aws.String("eu-west-1"),
+		LogLevel:    aws.LogLevel(aws.LogDebugWithHTTPBody),
+	}
+	svc := ec2.New(sess, config)
 	inputs := &ec2.AssignPrivateIpAddressesInput{
 		NetworkInterfaceId: aws.String(eni),
 		AllowReassignment: &reassign,
 		PrivateIpAddresses: []*string{
-			aws.String(theip[0]),
+			aws.String(realip),
 		},
 	}
 	_, errs := svc.AssignPrivateIpAddresses(inputs)

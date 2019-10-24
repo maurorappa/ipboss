@@ -24,9 +24,15 @@ func GetPrimaryIp(nic string) (ip string) {
 
 func AddIp(network_interface string, ipaddr string) (ok bool) {
 	ok = false
-	netif, _ := netlink.LinkByName(network_interface)
-	addr, _ := netlink.ParseAddr(ipaddr)
-	err := netlink.AddrAdd(netif, addr)
+	netif, err := netlink.LinkByName(network_interface)
+	if err != nil {
+		log.Printf("ERROR getting interface %s ", network_interface)
+	}
+	addr, err := netlink.ParseAddr(ipaddr)
+	if err != nil {
+		log.Printf("ERROR parse IP %s ", ipaddr)
+	}
+	err = netlink.AddrAdd(netif, addr)
 	if err != nil {
 		log.Printf("ERROR adding %s to %s", ipaddr, network_interface)
 		return ok
@@ -38,9 +44,15 @@ func AddIp(network_interface string, ipaddr string) (ok bool) {
 
 func RemIp(network_interface string, ipaddr string) (ok bool) {
 	ok = false
-	netif, _ := netlink.LinkByName(network_interface)
-	addr, _ := netlink.ParseAddr(ipaddr)
-	err := netlink.AddrDel(netif, addr)
+	netif, err := netlink.LinkByName(network_interface)
+	if err != nil {
+		log.Printf("ERROR getting interface %s ", network_interface)
+	}
+	addr, err := netlink.ParseAddr(ipaddr)
+	if err != nil {
+		log.Printf("ERROR parse IP %s ", ipaddr)
+	}
+	err = netlink.AddrDel(netif, addr)
 	if err != nil {
 		log.Printf("ERROR removing %s from %s", ipaddr, network_interface)
 		return ok

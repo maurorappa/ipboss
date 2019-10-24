@@ -25,7 +25,7 @@ func main() {
 	//start_time = time.Now()
 	conf = loadConfig(*confPath)
 
-	if *verbose {
+	if *verbose || os.Getenv("VERBOSE") == "true" {
 		conf.Verbose = true
 	}
 	//log.SetPrefix("IPboss ")
@@ -42,6 +42,7 @@ func main() {
 			log.Printf("Make sure you have valid AWS credentials and region!")
 			os.Exit(17)
 		}
+		log.Printf("AWS network management enabled")
 		eni = FindMyEni(myip)
 	}
 	Mticker := time.NewTicker(time.Duration(conf.Poll_interval) * time.Second)
